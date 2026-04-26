@@ -74,6 +74,22 @@ export async function createWebSocket({ app, enabled }: Config): Promise<WebSock
     };
   }
 
+
+  // if (runtime === "deno") {
+  //   const { upgradeWebSocket } = await import("hono/deno");
+  //   // const { upgradeWebSocket, websocket } = createBunWebSocket();
+
+  //   return {
+  //     upgradeWebSocket,
+  //     injectWebSocket: (server) => {
+  //       return {
+  //         ...server,
+  //         websocket,
+  //       };
+  //     },
+  //   };
+  // }
+
   return defaultWebSocket;
 }
 

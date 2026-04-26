@@ -103,11 +103,11 @@ export function reactRouterHonoServer(options: ReactRouterHonoServerPluginOption
       if (!pluginConfig) {
         return;
       }
-
       const isEnvironmentApiEnabled =
+        // @ts-expect-error - FIXME: Come back to this later
         pluginConfig.future.unstable_viteEnvironmentApi ??
         (pluginConfig.future as { v8_viteEnvironmentApi?: boolean }).v8_viteEnvironmentApi;
-
+      // @ts-expect-error - FIXME: Come back to this later
       const flagName = pluginConfig.future.unstable_viteEnvironmentApi
         ? "unstable_viteEnvironmentApi"
         : "v8_viteEnvironmentApi";
@@ -295,7 +295,27 @@ export function reactRouterHonoServer(options: ReactRouterHonoServerPluginOption
         adapter = cloudflareAdapter;
       }
 
+      if (runtime === "deno") {
+        adapter = () => {
+          if (typeof globalThis.navigator === 'undefined') {
+            // @ts-expect-error not typed well
+            globalThis.navigator = {
+              userAgent: 'Deno',
+            }
+          } else {
+            Object.defineProperty(globalThis.navigator, 'userAgent', {
+              value: 'Deno',
+              writable: false,
+            })
+          }
+          return {
+            env: Deno.env.toObject(),
+          }
+        }
+      }
+
       // Create and apply the Hono dev server plugin
+      // @ts-expect-error - FIXME: Come back to this later
       devServerPlugin = honoDevServer({
         adapter,
         injectClientScript: false,
@@ -337,6 +357,7 @@ export function reactRouterHonoServer(options: ReactRouterHonoServerPluginOption
       });
 
       // Apply the dev server plugin's configureServer hook if it exists
+      // @ts-expect-error - FIXME: Come back to this later
       if (typeof devServerPlugin.configureServer === "function") {
         // @ts-expect-error - FIXME: Come back to this later
         devServerPlugin.configureServer(server);
